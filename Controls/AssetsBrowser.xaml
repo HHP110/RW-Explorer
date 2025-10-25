@@ -1,0 +1,148 @@
+﻿<UserControl x:Class="RW_Explorer.Controls.AssetsBrowser"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="1200">
+
+    <UserControl.Resources>
+        <Style TargetType="ListViewItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border Name="Border" Background="Transparent">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Image Grid.Column="0" Source="{Binding Icon}" 
+                                       Width="32" Height="32" Margin="5,0"/>
+
+                                <TextBlock Grid.Column="1" Text="{Binding Name}" 
+                                           VerticalAlignment="Center" Foreground="White"/>
+
+                                <TextBlock Grid.Column="2" Text="{Binding Size}" 
+                                           VerticalAlignment="Center" Foreground="#FFAAAAAA"
+                                           HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#FF3E3E3E"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#FF007ACC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Storyboard x:Key="SlideInAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                         From="300" To="0" Duration="0:0:0.3"
+                         DecelerationRatio="0.7"/>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Grid Background="#FF1E1E1E">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="0" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <ListView x:Name="listView" Grid.Row="0"
+                      ItemsSource="{Binding Items}"
+                      Background="#FF1E1E1E"
+                      BorderThickness="0"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"            
+                      MouseDoubleClick="listView_MouseDoubleClick"
+                      PreviewMouseRightButtonDown="ListView_PreviewMouseRightButtonDown"
+                      SelectionChanged="listView_SelectionChanged">
+
+                <ListView.ContextMenu>
+                    <ContextMenu x:Name="folderContextMenu">
+                        <MenuItem Header="复制文件夹地址" Click="CopyFolderPath_Click"/>
+                        <MenuItem Header="在文件资源管理器中打开" Click="OpenInExplorer_Click"/>
+                        <Separator/>
+                        <MenuItem x:Name="menuAddComment" Header="添加解释/备注..." Click="AddComment_Click"/>
+                        <Separator/>
+                        <MenuItem Header="刷新" Click="Refresh_Click"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
+
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style TargetType="GridViewColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridViewColumn Header="名称" Width="400">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding Icon}" Width="32" Height="32" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="White"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="大小" Width="100" DisplayMemberBinding="{Binding Size}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                <Button Content="上一页" Click="btnPrevPage_Click" 
+                        Style="{StaticResource ModernButton}" Width="80"/>
+                <TextBlock x:Name="txtPageInfo" Foreground="White" 
+                           VerticalAlignment="Center" Margin="10,0"/>
+                <Button Content="下一页" Click="btnNextPage_Click"
+                        Style="{StaticResource ModernButton}" Width="80"/>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Column="1" Grid.RowSpan="2" Background="#FF252526" BorderBrush="#FF3E3E3E" BorderThickness="1,0,0,0"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <TranslateTransform X="300"/>
+            </Border.RenderTransform>
+            <Border.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard Storyboard="{StaticResource SlideInAnimation}"/>
+                </EventTrigger>
+            </Border.Triggers>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="文件夹详情" FontSize="16" Foreground="White" Margin="10" FontWeight="Bold"/>
+
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel x:Name="detailPanel" Margin="10">
+                        <TextBlock Text="未选择文件夹" Foreground="#FFAAAAAA" FontStyle="Italic"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
