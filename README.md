@@ -43,4 +43,4 @@
 
 ## 许可证
 
-本项目采用 [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/)。
+本项目采用 MIT 许可证。
